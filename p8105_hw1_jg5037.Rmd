@@ -11,6 +11,7 @@ output: github_document
 library(moderndive)
 library(ggplot2)
 data("early_january_weather")
+
 ```
 
 The variables included in the dataset are: `r names(early_january_weather)`.  
