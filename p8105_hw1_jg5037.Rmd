@@ -6,38 +6,115 @@ output: github_document
 ---
 # Problem 1
 
-## Part a
-```{r}
+## loading necessary package and dataset
+```{r loading package}
+#loading necessary package and dataset
 library(moderndive)
 library(ggplot2)
+library(tidyverse)
 data("early_january_weather")
 ```
 
-The variables included in the dataset are: `r names(early_january_weather)`.  
+## Summary the dataset
 
-Key variables include:  
-- **Temperature (`temp`)**: numeric, with an average of about `r round(mean(early_january_weather$temp, na.rm = TRUE), 1)` °F  
-- **Humidity (`humid`)**: numeric, ranging from `r round(min(early_january_weather$humid, na.rm = TRUE),1)` to `r round(max(early_january_weather$humid, na.rm = TRUE),1)`  
-- **Time (`time_hour`)**: POSIXct variable recording the observation time, ranging from `r min(early_january_weather$time_hour)` to `r max(early_january_weather$time_hour)`  
-- Other variables include wind speed (`wind_speed`), precipitation (`precip`), and visibility (`visib`).  
+**The variables included in the dataset are: `r names(early_january_weather)`.** 
 
-```{r fig.width=7, fig.height=5}
-library(ggplot2)
+Key variables include:
 
-p <- ggplot(early_january_weather, aes(x = time_hour, y = temp, color = humid)) +
+  - **Temperature (`temp`)**: numeric, with an average of about `r     mean(early_january_weather$temp, na.rm = TRUE)` °F  
+  - **Humidity (`humid`)**: numeric, ranging from `r min(early_january_weather$humid, na.rm = TRUE)` to `r max(early_january_weather$humid, na.rm = TRUE)`  
+  - **Time (`time_hour`)**: This dataset record the observation time, ranging from `r min(early_january_weather$time_hour)` to `r max(early_january_weather$time_hour)`  
+  - Other variables include wind speed (`wind_speed`), precipitation (`precip`), and visibility (`visib`).  
+
+## Creat the scatterplot of (`temp`) VS (`time_hour`)
+
+```{r creat plot,fig.width=7, fig.height=5}
+# Define the plot
+scatterplot <- ggplot(early_january_weather, aes(x = time_hour, y = temp, color = humid)) +
   geom_point(alpha = 0.7) +
   labs(
-    title = "Temperature vs Time (colored by humidity)",
+    title = "Temperature vs Time (colored by humid)",
     x = "Time (hour)",
     y = "Temperature (F)",
-    color = "Humidity"
-  ) +
-  theme_minimal()
+    color = "humid"
+  )
 
-# show the ggplot
-p
+# Show the ggplot
+scatterplot
 
 # Save to project directory
-ggsave("scatter_temp_time.png", p, width = 7, height = 5)
+ggsave("scatter_temp_time.png", scatterplot, width = 7, height = 5)
+```
+# Problem 2
+
+## Creat the  required data_frame
+```{r creat data_frame}
+set.seed(1) # For repeat(not change the data frame)
+
+df <- tibble(
+  num_var = rnorm(10), # Random select 10 numbers from normal distribution
+  log_var = rnorm(10) > 0, # Show that if the sample are greater than 0
+  char_var = letters[1:10], # Character vector of length 10
+  fac_var = factor(rep(c("A", "B", "C"), length.out = 10)) # Factor vector of length 10, with three different factor levels.
+)
+# Show the data_frame
+df
 ```
 
+## Testing each veriable to take mean value
+```{r test different types of variables}
+mean_num <- mean(df %>% pull(num_var))
+mean_num
+mean_log <- mean(df %>% pull(log_var))
+mean_log
+mean_char <- mean(df %>% pull(char_var))
+mean_char
+mean_fac <- mean(df %>% pull(fac_var))
+mean_fac
+```
+
+### Results and Interpretation
+
+_When calculating the mean of each variable:_
+
+- **Numeric (`num_var`)**: mean is `r mean(df %>% pull(num_var))` → works as expected since it is numeric data.  
+- **Logical (`log_var`)**: mean is `r mean(df %>% pull(log_var))` → works because `TRUE` is return to 1 and `FALSE` return 0; the mean given by  `TRUE` values.  
+- **Character (`char_var`)**: Returns `NA` with a warning → characters are not numeric variables can not be calculated mean.  
+- **Factor (`fac_var`)**: Returns `NA` with a warning : factors are categorical variables and cannot be directly averaged.  
+
+**Summary:**  
+Only numeric and logical variables can be meaningfully averaged. Character and factor variables can not direct computation of the mean.
+
+## Change the non-working types variables by `as.numeric()`
+
+```{r Change the different types variables}
+new_log_var <- df %>%
+  pull(log_var) %>%
+  as.numeric()
+new_log_var
+new_char_var <- df %>%
+  pull(char_var) %>%
+  as.numeric()
+new_char_var
+new_fac_var <- df %>%
+  pull(fac_var) %>%
+  as.numeric()
+new_fac_var
+```
+### Results and Interpretation
+
+- **Logical to Numeric**  
+  `TRUE` is return to 1 and `FALSE` return to 0.  
+  The mean gives the proportion of `TRUE` values so that the logical variables can be averaged.
+
+- **Character to Numeric**  
+  Characters such as `"a"`, `"b"`, `"c"` cannot be directly converted.  
+  The result is `NA` with a warning (`NAs introduced by coercion`), so their mean cannot be computed.  
+
+- **Factor to Numeric**  
+  Factors are internally stored as integer codes corresponding to their levels (e.g., level A = 1, level B = 2, level C = 3).  
+  Conversion returns these values(levels), so technically a mean can be calculated
+**Summary:**  
+- Numeric and logical variables can be meaningfully averaged.  
+- Character variables convert to `NA` and cannot be averaged.  
+- Factor variables convert to integer codes, but their mean has no real-world meaning.
