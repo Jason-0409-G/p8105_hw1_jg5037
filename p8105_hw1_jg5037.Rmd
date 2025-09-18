@@ -87,7 +87,7 @@ Only numeric and logical variables can be meaningfully averaged. Character and f
 
 ## Change the non-working types variables by `as.numeric()`
 
-```{r Change the different types variables}
+```{r Change the different types variables, results="hide"}
 new_log_var <- df %>%
   pull(log_var) %>%
   as.numeric()
